@@ -505,6 +505,46 @@ const cityInsights = {
     mood: "Clean, elegant, and easy from Budapest by bus or train. Great no-flight escape.",
     tags: ["museums", "coffee", "palaces"],
   },
+  Bratislava: {
+    mood: "Small capital, easy old-town walk, and a very practical Budapest/Vienna ground-hop.",
+    tags: ["old town", "castle", "Danube"],
+  },
+  Zurich: {
+    mood: "Beautiful lake, mountain views, and brutal daily costs. Only worth it when the route is unusually strong.",
+    tags: ["lake", "old town", "viewpoints"],
+  },
+  Brussels: {
+    mood: "Useful rail/bus gateway for Paris, Amsterdam, and London. Better as a clever stop than a random detour.",
+    tags: ["Grand Place", "fries", "gateway"],
+  },
+  Copenhagen: {
+    mood: "Clean, bikeable, design-heavy, and expensive. Great when you can keep the stay short and tight.",
+    tags: ["Nyhavn", "bikes", "design"],
+  },
+  Krakow: {
+    mood: "Compact, cheap, and easy to enjoy without burning cash. Strong student-weekend material.",
+    tags: ["old town", "Kazimierz", "cheap food"],
+  },
+  Warsaw: {
+    mood: "Big-city Poland with solid museums and friendlier hostel math than western capitals.",
+    tags: ["old town", "museums", "parks"],
+  },
+  Istanbul: {
+    mood: "Massive city energy, ferries, markets, and food value. Worth extra days if the flight is kind.",
+    tags: ["ferries", "bazaars", "street food"],
+  },
+  Venice: {
+    mood: "Unreal streets, but beds and crowds bite fast. Works best as a short, planned strike.",
+    tags: ["canals", "walks", "islands"],
+  },
+  Naples: {
+    mood: "Pizza, chaotic streets, sea views, and lower pressure than Rome or Milan.",
+    tags: ["pizza", "old town", "Vesuvius"],
+  },
+  Nice: {
+    mood: "Sea, old-town color, and French Riviera pricing. Best outside peak summer.",
+    tags: ["Promenade", "old town", "beach"],
+  },
   Tirana: {
     mood: "Colorful streets, mountain views, and cheap food. A strong Balkan pick when the fare lines up.",
     tags: ["Skanderbeg", "Blloku", "Dajti"],
@@ -578,6 +618,16 @@ const cityFacts = {
   Prague: "Student-friendly: compact center means less transit spending if your hostel is placed well.",
   Rome: "Timing rule: Rome punishes rushed overnights. Give it daylight or skip the trick.",
   Vienna: "Zylo note: often better by train/bus from Budapest than by airport gymnastics.",
+  Bratislava: "Tiny capital advantage: you can pair it with Vienna or Budapest without airport drama.",
+  Zurich: "Reality check: free lake views help, but Switzerland can destroy a student daily budget.",
+  Brussels: "Gateway edge: sometimes Brussels plus train/bus beats pretending Paris direct is always best.",
+  Copenhagen: "Design-city rule: short stay, bike/transit pass, and no expensive bed mistakes.",
+  Krakow: "Budget sweet spot: compact sights plus lower hostel pressure make short trips feel fuller.",
+  Warsaw: "Useful fact: bigger than it looks, so location matters more than in Krakow or Prague.",
+  Istanbul: "Longer-stay city: one rushed night wastes the ferry, bazaar, and food value.",
+  Venice: "Smart move: stay nearby or keep it short when island beds get expensive.",
+  Naples: "Value angle: cheaper than Rome, but give yourself daylight for the city to make sense.",
+  Nice: "Shoulder-season city: the sea is still there when summer prices are not.",
   Tirana: "Underrated: cheap food and mountain day-trip energy make extra nights easier.",
   Sarajevo: "Worth it when slow: the city rewards walking time more than fast checklist travel.",
   Skopje: "Budget edge: low daily costs can make a slightly longer stay still reasonable.",
