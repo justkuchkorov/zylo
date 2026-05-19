@@ -60,24 +60,34 @@ const countryFlags = {
 };
 
 const countryCodes = {
+  Albania: "al",
   Austria: "at",
   Belgium: "be",
+  "Bosnia and Herzegovina": "ba",
   Bulgaria: "bg",
   Croatia: "hr",
+  Cyprus: "cy",
   Czechia: "cz",
   Denmark: "dk",
   Estonia: "ee",
   Finland: "fi",
   France: "fr",
+  Georgia: "ge",
   Germany: "de",
   Greece: "gr",
   Hungary: "hu",
+  Iceland: "is",
   Ireland: "ie",
   Italy: "it",
+  Kosovo: "xk",
   Latvia: "lv",
   Lithuania: "lt",
+  Luxembourg: "lu",
   Malta: "mt",
+  Moldova: "md",
+  Montenegro: "me",
   Netherlands: "nl",
+  "North Macedonia": "mk",
   Norway: "no",
   Poland: "pl",
   Portugal: "pt",
@@ -141,6 +151,20 @@ const cities = [
   city("Split", "Croatia", ["SPU"]),
   city("Valletta", "Malta", ["MLA"]),
   city("Istanbul", "Turkey", ["IST", "SAW"]),
+  city("Tirana", "Albania", ["TIA"]),
+  city("Sarajevo", "Bosnia and Herzegovina", ["SJJ"]),
+  city("Skopje", "North Macedonia", ["SKP"]),
+  city("Podgorica", "Montenegro", ["TGD"]),
+  city("Pristina", "Kosovo", ["PRN"]),
+  city("Luxembourg", "Luxembourg", ["LUX"]),
+  city("Reykjavik", "Iceland", ["KEF"]),
+  city("Chisinau", "Moldova", ["RMO"]),
+  city("Larnaca", "Cyprus", ["LCA"]),
+  city("Tbilisi", "Georgia", ["TBS"]),
+  city("Debrecen", "Hungary", ["DEB"], [ground("Budapest", "BUD", 11, 2.7, "Train/bus")]),
+  city("Szeged", "Hungary", [], [ground("Budapest", "BUD", 9, 2.2, "Train/bus")]),
+  city("Pecs", "Hungary", [], [ground("Budapest", "BUD", 12, 2.8, "Train/bus")]),
+  city("Gyor", "Hungary", [], [ground("Budapest", "BUD", 8, 1.5, "Train")]),
 ];
 
 const routeGraph = [
@@ -205,6 +229,17 @@ const routeGraph = [
   air("BUD", "DBV", "Budget airline estimate", 43, 1.3),
   air("BUD", "SPU", "Budget airline estimate", 39, 1.2),
   air("BUD", "MLA", "Budget airline estimate", 55, 2.2),
+  air("BUD", "TIA", "Wizz Air", 39, 1.5),
+  air("BUD", "SJJ", "Budget airline estimate", 41, 1.2),
+  air("BUD", "SKP", "Wizz Air", 34, 1.4),
+  air("BUD", "TGD", "Budget airline estimate", 44, 1.3),
+  air("BUD", "PRN", "Wizz Air", 36, 1.5),
+  air("BUD", "LUX", "Budget airline estimate", 46, 1.9),
+  air("BUD", "KEF", "Budget airline estimate", 88, 4.6),
+  air("BUD", "RMO", "Wizz Air", 36, 1.6),
+  air("BUD", "LCA", "Wizz Air", 56, 2.8),
+  air("BUD", "TBS", "Budget airline estimate", 76, 3.5),
+  air("BUD", "DEB", "Budget airline estimate", 28, 0.8),
   air("PRG", "BCN", "Ryanair", 32, 2.4),
   air("PRG", "FCO", "Ryanair", 30, 1.8),
   air("PRG", "LTN", "Wizz Air", 34, 2.1),
@@ -252,11 +287,23 @@ const routeGraph = [
   air("RIX", "LTN", "Budget airline estimate", 37, 2.8),
   air("TLL", "BER", "Budget airline estimate", 39, 1.9),
   air("VNO", "LTN", "Budget airline estimate", 38, 2.9),
+  air("TIA", "FCO", "Wizz Air", 28, 1.5),
+  air("TIA", "BGY", "Wizz Air", 29, 1.9),
+  air("SKP", "BGY", "Wizz Air", 27, 2.0),
+  air("PRN", "VIE", "Wizz Air", 29, 1.7),
+  air("LUX", "BCN", "Budget airline estimate", 42, 2.0),
+  air("LUX", "LIS", "Budget airline estimate", 45, 2.7),
+  air("LCA", "ATH", "Wizz Air", 34, 1.8),
+  air("TBS", "ATH", "Budget airline estimate", 52, 3.0),
 ].flatMap((leg) => [leg, reverseLeg(leg)]);
 
 const groundRoutes = [
   intercity("Budapest", "Vienna", 14, 2.8, "FlixBus/train estimate"),
   intercity("Budapest", "Bratislava", 12, 3.0, "FlixBus/train estimate"),
+  intercity("Budapest", "Szeged", 9, 2.2, "Train/bus estimate"),
+  intercity("Budapest", "Debrecen", 11, 2.7, "Train/bus estimate"),
+  intercity("Budapest", "Pecs", 12, 2.8, "Train/bus estimate"),
+  intercity("Budapest", "Gyor", 8, 1.5, "Train estimate"),
   intercity("Vienna", "Bratislava", 8, 1.2, "FlixBus estimate"),
   intercity("Budapest", "Prague", 24, 6.8, "Train/bus estimate"),
   intercity("Budapest", "Zagreb", 22, 4.8, "FlixBus estimate"),
@@ -284,6 +331,13 @@ const groundRoutes = [
   intercity("Ljubljana", "Venice", 20, 4.2, "FlixBus estimate"),
   intercity("Zagreb", "Split", 24, 6.2, "FlixBus estimate"),
   intercity("Split", "Dubrovnik", 18, 4.5, "FlixBus estimate"),
+  intercity("Tirana", "Podgorica", 18, 4.0, "FlixBus/bus estimate"),
+  intercity("Tirana", "Skopje", 20, 6.0, "Bus estimate"),
+  intercity("Podgorica", "Dubrovnik", 18, 4.0, "Bus estimate"),
+  intercity("Skopje", "Pristina", 10, 2.0, "Bus estimate"),
+  intercity("Sarajevo", "Belgrade", 24, 7.0, "Bus estimate"),
+  intercity("Sarajevo", "Zagreb", 24, 6.5, "Bus estimate"),
+  intercity("Chisinau", "Bucharest", 24, 8.5, "Bus/train estimate"),
 ].flatMap((leg) => [leg, reverseIntercity(leg)]);
 
 const airportCity = new Map(cities.flatMap((item) => item.airports.map((airport) => [airport, item.name])));
@@ -366,6 +420,20 @@ const cityCoordinates = {
   Split: { lat: 43.5081, lon: 16.4402 },
   Valletta: { lat: 35.8997, lon: 14.5146 },
   Istanbul: { lat: 41.0082, lon: 28.9784 },
+  Tirana: { lat: 41.3275, lon: 19.8187 },
+  Sarajevo: { lat: 43.8563, lon: 18.4131 },
+  Skopje: { lat: 41.9981, lon: 21.4254 },
+  Podgorica: { lat: 42.4304, lon: 19.2594 },
+  Pristina: { lat: 42.6629, lon: 21.1655 },
+  Luxembourg: { lat: 49.6116, lon: 6.1319 },
+  Reykjavik: { lat: 64.1466, lon: -21.9426 },
+  Chisinau: { lat: 47.0105, lon: 28.8638 },
+  Larnaca: { lat: 34.9229, lon: 33.6233 },
+  Tbilisi: { lat: 41.7151, lon: 44.8271 },
+  Debrecen: { lat: 47.5316, lon: 21.6273 },
+  Szeged: { lat: 46.253, lon: 20.1414 },
+  Pecs: { lat: 46.0727, lon: 18.2323 },
+  Gyor: { lat: 47.6875, lon: 17.6504 },
   Venice: { lat: 45.4408, lon: 12.3155 },
   Naples: { lat: 40.8518, lon: 14.2681 },
   Nice: { lat: 43.7102, lon: 7.262 },
@@ -436,6 +504,62 @@ const cityInsights = {
     mood: "Clean, elegant, and easy from Budapest by bus or train. Great no-flight escape.",
     tags: ["museums", "coffee", "palaces"],
   },
+  Tirana: {
+    mood: "Colorful streets, mountain views, and cheap food. A strong Balkan pick when the fare lines up.",
+    tags: ["Skanderbeg", "Blloku", "Dajti"],
+  },
+  Sarajevo: {
+    mood: "Layered history, mountain edges, and cheap food. Better when you can give it more than one night.",
+    tags: ["Bascarsija", "viewpoints", "cevapi"],
+  },
+  Skopje: {
+    mood: "Unusual monuments, mountain day trips, and low daily costs. A useful Balkan connector.",
+    tags: ["Old Bazaar", "Matka", "cheap eats"],
+  },
+  Podgorica: {
+    mood: "Not the flashiest capital, but useful for Montenegro links and cheap Balkan routing.",
+    tags: ["river walks", "day trips", "gateway"],
+  },
+  Pristina: {
+    mood: "Young city energy, cafes, and cheap stays. Best as part of a Balkan route.",
+    tags: ["cafes", "Newborn", "student mood"],
+  },
+  Luxembourg: {
+    mood: "Pretty cliffs and old-town views, but beds can be expensive. Great if transport is very cheap.",
+    tags: ["Grund", "fortress", "views"],
+  },
+  Reykjavik: {
+    mood: "Huge nature payoff, serious hostel pressure. Zylo should only bless it when the fare is unusually good.",
+    tags: ["harbor", "pools", "nature"],
+  },
+  Chisinau: {
+    mood: "Cheap, calm, and underrated. Works best for curious travelers who like slower city days.",
+    tags: ["parks", "wine", "markets"],
+  },
+  Larnaca: {
+    mood: "Sea air, beach walks, and warm shoulder seasons. Good when the flight beats island pricing.",
+    tags: ["beach", "salt lake", "sun"],
+  },
+  Tbilisi: {
+    mood: "Old balconies, hills, sulfur baths, and big food value. Worth a longer stay if flights are kind.",
+    tags: ["old town", "baths", "khachapuri"],
+  },
+  Debrecen: {
+    mood: "Calmer Hungarian city break with thermal baths and student prices. Works well as a ground hop.",
+    tags: ["Great Church", "baths", "parks"],
+  },
+  Szeged: {
+    mood: "Sunny university city with river walks and paprika-food energy. Best reached by train or bus from Budapest.",
+    tags: ["Dom Square", "Tisza", "paprika"],
+  },
+  Pecs: {
+    mood: "Art, old streets, and a softer southern Hungary mood. Better by train than chasing a fake airport route.",
+    tags: ["Zsolnay", "old town", "cafes"],
+  },
+  Gyor: {
+    mood: "Easy train escape between Budapest and Vienna with baroque streets and riverside walks.",
+    tags: ["old town", "rivers", "day trip"],
+  },
 };
 
 const hostelMarkets = {
@@ -484,6 +608,20 @@ const hostelMarkets = {
   Split: { low: 24, typical: 38, high: 64, confidence: "medium" },
   Valletta: { low: 24, typical: 36, high: 58, confidence: "medium" },
   Istanbul: { low: 16, typical: 27, high: 46, confidence: "medium" },
+  Tirana: { low: 12, typical: 21, high: 36, confidence: "medium" },
+  Sarajevo: { low: 14, typical: 23, high: 38, confidence: "medium" },
+  Skopje: { low: 12, typical: 21, high: 36, confidence: "medium" },
+  Podgorica: { low: 16, typical: 28, high: 44, confidence: "medium" },
+  Pristina: { low: 14, typical: 24, high: 40, confidence: "medium" },
+  Luxembourg: { low: 38, typical: 58, high: 86, confidence: "medium" },
+  Reykjavik: { low: 48, typical: 72, high: 110, confidence: "medium" },
+  Chisinau: { low: 12, typical: 22, high: 36, confidence: "medium" },
+  Larnaca: { low: 22, typical: 36, high: 58, confidence: "medium" },
+  Tbilisi: { low: 10, typical: 20, high: 34, confidence: "medium" },
+  Debrecen: { low: 14, typical: 24, high: 38, confidence: "medium" },
+  Szeged: { low: 13, typical: 22, high: 36, confidence: "medium" },
+  Pecs: { low: 13, typical: 22, high: 36, confidence: "medium" },
+  Gyor: { low: 16, typical: 27, high: 42, confidence: "medium" },
 };
 
 const liveWeatherCache = new Map();
@@ -1516,7 +1654,7 @@ function makeRoute(label, destination, legs, risk, meta = {}) {
 function airportChoices(cityName, allowNearby, side) {
   const item = getCity(cityName);
   const own = item.airports.map((airport) => ({ airport, ground: null }));
-  if (!allowNearby) return own;
+  if (!allowNearby && own.length) return own;
 
   const nearby = item.nearby.map((near) => ({
     airport: near.airport,
@@ -1535,7 +1673,7 @@ function groundLeg(homeCity, from, to, airport, price, hours, provider) {
     from,
     to,
     fromAirport: cityCode(from),
-    toAirport: airport,
+    toAirport: to === homeCity ? cityCode(to) : airport,
     airline: provider,
     price,
     hours,
@@ -1935,6 +2073,20 @@ function seasonalWeatherScore(cityName, date) {
     Split: [50, 56, 66, 76, 84, 84, 74, 76, 84, 78, 66, 52],
     Valletta: [64, 68, 74, 80, 84, 78, 66, 68, 80, 84, 76, 66],
     Istanbul: [48, 54, 64, 74, 80, 78, 68, 70, 80, 76, 66, 52],
+    Tirana: [48, 54, 64, 74, 82, 84, 74, 74, 82, 76, 62, 50],
+    Sarajevo: [26, 34, 50, 64, 72, 78, 78, 76, 68, 54, 40, 30],
+    Skopje: [34, 42, 58, 70, 80, 82, 76, 76, 76, 64, 48, 36],
+    Podgorica: [44, 50, 62, 72, 80, 84, 78, 78, 80, 70, 56, 46],
+    Pristina: [30, 38, 54, 66, 76, 80, 78, 76, 68, 54, 40, 32],
+    Luxembourg: [32, 38, 50, 62, 70, 76, 78, 74, 66, 54, 42, 34],
+    Reykjavik: [20, 24, 32, 42, 50, 58, 62, 58, 50, 40, 30, 24],
+    Chisinau: [28, 36, 52, 66, 76, 80, 78, 76, 68, 54, 40, 30],
+    Larnaca: [62, 66, 72, 80, 84, 80, 68, 70, 82, 84, 74, 64],
+    Tbilisi: [36, 44, 58, 70, 78, 82, 76, 76, 76, 64, 50, 38],
+    Debrecen: [32, 40, 56, 70, 78, 82, 78, 76, 70, 58, 46, 34],
+    Szeged: [36, 44, 58, 72, 80, 84, 80, 78, 72, 60, 48, 38],
+    Pecs: [36, 44, 58, 72, 80, 84, 80, 78, 72, 60, 48, 38],
+    Gyor: [34, 42, 56, 70, 78, 82, 80, 76, 70, 58, 46, 36],
   };
   return comfortByMonth[cityName]?.[month] || 65;
 }
