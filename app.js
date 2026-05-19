@@ -377,6 +377,7 @@ const plannerSection = document.querySelector("#routePlanner");
 const cityInsight = document.querySelector("#cityInsight");
 const insightCity = document.querySelector("#insightCity");
 const insightMood = document.querySelector("#insightMood");
+const insightFact = document.querySelector("#insightFact");
 const insightTags = document.querySelector("#insightTags");
 let routeMap;
 let fromMarker;
@@ -560,6 +561,37 @@ const cityInsights = {
     mood: "Easy train escape between Budapest and Vienna with baroque streets and riverside walks.",
     tags: ["old town", "rivers", "day trip"],
   },
+};
+
+const cityFacts = {
+  Amsterdam: "Tiny fact: the canal ring is perfect for a 2-hour walk, but hostel prices can ruin the romance fast.",
+  Athens: "Best trick: sunset viewpoints are free, so spend money on food, not views.",
+  Barcelona: "Student move: stay near metro lines, not the beach, and the city feels cheaper immediately.",
+  Berlin: "Useful fact: many great museums and memorials are clustered, so one transit pass can do a lot.",
+  Budapest: "Local edge: baths plus night trains/buses make it a strong low-cost base city.",
+  Lisbon: "Tiny warning: hills make distances feel longer than the map says.",
+  London: "Budget hack: free museums are the real deal, but beds are the danger zone.",
+  Madrid: "Good sign: late city rhythm makes short trips feel longer if your return is not too early.",
+  Milan: "Best use: treat it as a northern Italy gateway, not only a fashion weekend.",
+  Paris: "Budget truth: cheap flight plus expensive bed can still lose to Brussels plus bus.",
+  Porto: "Good value: the best views are mostly free, which helps the daily budget.",
+  Prague: "Student-friendly: compact center means less transit spending if your hostel is placed well.",
+  Rome: "Timing rule: Rome punishes rushed overnights. Give it daylight or skip the trick.",
+  Vienna: "Zylo note: often better by train/bus from Budapest than by airport gymnastics.",
+  Tirana: "Underrated: cheap food and mountain day-trip energy make extra nights easier.",
+  Sarajevo: "Worth it when slow: the city rewards walking time more than fast checklist travel.",
+  Skopje: "Budget edge: low daily costs can make a slightly longer stay still reasonable.",
+  Podgorica: "Gateway logic: not always the final prize, but useful for Montenegro routing.",
+  Pristina: "Cafe city: low stay cost makes it better as a Balkan add-on.",
+  Luxembourg: "Watchout: free public transport helps, but hostel prices can hit hard.",
+  Reykjavik: "Big warning: flights can look okay, but the daily cost is the real boss.",
+  Chisinau: "Underrated: cheap stays make it interesting if you like slower cities.",
+  Larnaca: "Shoulder season wins: warm weather without full island pricing pressure.",
+  Tbilisi: "Value city: food and hostel math can make a longer stay smarter than a sprint.",
+  Debrecen: "Ground-hop city: better as a train/bus extension than a fake flight target.",
+  Szeged: "Zylo logic: fly to Budapest, then train down. That is exactly why this app exists.",
+  Pecs: "Ground-hop pick: southern Hungary works best when the Budapest leg is already cheap.",
+  Gyor: "Fast escape: easy train city when you want a cheap Hungary/Vienna-side mini trip.",
 };
 
 const hostelMarkets = {
@@ -1128,7 +1160,7 @@ function updateMapPreview() {
 }
 
 function updateCityInsight(cityName) {
-  if (!cityInsight || !insightCity || !insightMood || !insightTags) return;
+  if (!cityInsight || !insightCity || !insightMood || !insightFact || !insightTags) return;
   const cityItem = cities.find((item) => item.name === cityName);
   const market = hostelMarkets[cityName];
   const insight = cityInsights[cityName] || {
@@ -1141,6 +1173,7 @@ function updateCityInsight(cityName) {
   cityInsight.hidden = cityName === "Anywhere";
   insightCity.innerHTML = `${cityItem ? flagBadgeHtml(cityItem) : ""}<span>${escapeHtml(cityName)}</span>`;
   insightMood.textContent = insight.mood;
+  insightFact.textContent = cityFacts[cityName] || "Zylo only likes it when price, bed, weather, and real city time agree.";
   insightTags.innerHTML = tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
 }
 

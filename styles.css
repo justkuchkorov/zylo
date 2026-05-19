@@ -1138,7 +1138,8 @@ button {
 .city-insight {
   position: absolute;
   right: 36px;
-  bottom: 34px;
+  top: clamp(226px, 27vh, 300px);
+  bottom: auto;
   z-index: 1200;
   display: grid;
   gap: 9px;
@@ -1177,6 +1178,16 @@ button {
   font-size: 0.82rem;
   font-weight: 750;
   line-height: 1.42;
+}
+
+.city-insight .insight-fact {
+  padding: 9px 10px;
+  border: 1px solid rgba(190, 224, 211, 0.72);
+  border-radius: 14px;
+  color: var(--green-dark);
+  background: rgba(232, 248, 241, 0.7);
+  font-size: 0.76rem;
+  font-weight: 900;
 }
 
 .insight-tags {
