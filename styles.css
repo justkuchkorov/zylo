@@ -1104,8 +1104,9 @@ button {
 
 .map-caption {
   position: absolute;
-  right: 56px;
-  bottom: 130px;
+  top: clamp(88px, 9vh, 120px);
+  right: 36px;
+  bottom: auto;
   z-index: 1150;
   display: grid;
   gap: 3px;
