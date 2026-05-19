@@ -960,11 +960,13 @@ button {
   inset: 0;
   z-index: 1;
   overflow: hidden;
+  isolation: isolate;
 }
 
 .route-map {
   position: absolute;
   inset: 0;
+  z-index: 0;
   background: #eaf5f0;
 }
 
@@ -1104,7 +1106,7 @@ button {
   position: absolute;
   right: 56px;
   bottom: 130px;
-  z-index: 4;
+  z-index: 1150;
   display: grid;
   gap: 3px;
   min-width: 150px;
@@ -1136,7 +1138,7 @@ button {
   position: absolute;
   right: 36px;
   bottom: 34px;
-  z-index: 12;
+  z-index: 1200;
   display: grid;
   gap: 9px;
   width: min(360px, calc(100% - 480px));
@@ -1198,7 +1200,7 @@ button {
   --search-card-top: clamp(18px, 3.4vh, 34px);
   --search-card-left: clamp(18px, 2.4vw, 42px);
   position: relative;
-  z-index: 8;
+  z-index: 1300;
   width: min(380px, calc(100% - clamp(36px, 8vw, 92px)));
   max-width: 100%;
   max-height: calc(100% - var(--search-card-top) - clamp(16px, 3vh, 28px));
