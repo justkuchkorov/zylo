@@ -1189,7 +1189,20 @@ function buildRatedTrips(state) {
 
   const ranked = dedupeTrips(candidates).sort((a, b) => a.sort - b.sort);
   annotateTimingComparisons(ranked, state);
-  return ranked.slice(0, 8);
+  return diversifyTrips(ranked).slice(0, 8);
+}
+
+function diversifyTrips(ranked) {
+  const selected = ranked.slice(0, 8);
+  const hasGateway = selected.some((trip) => trip.bonusCities?.length);
+  const gateway = ranked.find((trip) => trip.bonusCities?.length);
+
+  if (!hasGateway && gateway && selected.length >= 4 && gateway.sort <= selected[0].sort + 120) {
+    selected[selected.length - 1] = gateway;
+    return selected.sort((a, b) => a.sort - b.sort);
+  }
+
+  return selected;
 }
 
 function annotateTimingComparisons(trips, state) {
@@ -1427,7 +1440,9 @@ function buildOneWay(originName, destinationName, state) {
     });
   });
 
-  const stopovers = state.stops ? buildStopovers(origins, destinations, destinationName) : [];
+  const stopovers = state.stops
+    ? [...buildStopovers(origins, destinations, destinationName), ...buildGroundHops(origins, originName, destinationName)]
+    : [];
   return [...direct, ...stopovers].sort((a, b) => oneWaySort(a) - oneWaySort(b));
 }
 
@@ -1459,6 +1474,36 @@ function buildStopovers(origins, destinations, destinationName) {
             });
         });
     });
+  });
+
+  return routes;
+}
+
+function buildGroundHops(origins, originName, destinationName) {
+  const routes = [];
+
+  origins.forEach((origin) => {
+    routeGraph
+      .filter((flight) => flight.from === origin.airport)
+      .forEach((flight) => {
+        const gatewayCity = airportCity.get(flight.to);
+        if (!gatewayCity || gatewayCity === originName || gatewayCity === destinationName) return;
+        if (flight.to !== cityCode(gatewayCity)) return;
+
+        groundRoutes
+          .filter((groundRoute) => groundRoute.from === gatewayCity && groundRoute.to === destinationName)
+          .forEach((groundRoute) => {
+            routes.push(
+              makeRoute(
+                `${gatewayCity} gateway`,
+                destinationName,
+                [origin.ground, flight, pause(gatewayCity), intercityLeg(groundRoute)].filter(Boolean),
+                2,
+                { groundHop: true, bonusCity: gatewayCity },
+              ),
+            );
+          });
+      });
   });
 
   return routes;
@@ -1551,6 +1596,8 @@ function scoreTrip(trip, state) {
     Math.max(0, state.hostelLimit - hostelInfo.nightly) * Math.min(destinationHostelNights, 4) * 0.55 +
     Math.max(0, state.hostelLimit - (stopHostelInfo?.nightly || state.hostelLimit)) * Math.min(stopHostelNights, 3) * 0.45;
   const styleBonus = tripStyleBonus(state.tripStyle, tripDays, hostelNightly, state.hostelLimit);
+  const bonusCities = routeBonusCities(trip);
+  const groundHopBonus = bonusCities.length ? (state.tripStyle === "short" ? 2 : 7) : 0;
   const stayCall = stayCallFor(hostelNightly, hostelNights, perDay, state, practicalStay);
   const trust = routeTrust({ ...trip, stopCount }, weatherInfo);
   const worth = clamp(
@@ -1567,6 +1614,7 @@ function scoreTrip(trip, state) {
         practicalStay.score * 0.12 +
         weather * 0.16 +
         styleBonus +
+        groundHopBonus +
         (stopCount ? 2 : 8),
     ),
     25,
@@ -1583,7 +1631,8 @@ function scoreTrip(trip, state) {
     worth * 0.28 -
     weather * 0.08 -
     hostelValueBonus -
-    styleBonus;
+    styleBonus -
+    groundHopBonus * 1.35;
   const adjustedSort = sort + hostelPressure * 1.35 + (state.tripStyle !== "longer" && hostelNightly > state.hostelLimit ? hostelNights * 9 : 0);
 
   return {
@@ -1610,6 +1659,7 @@ function scoreTrip(trip, state) {
     trust,
     baggage,
     stopCount,
+    bonusCities,
     outboundCost,
     inboundCost,
     sort: adjustedSort,
@@ -1631,6 +1681,7 @@ function scoreTrip(trip, state) {
         stopHostelNightly: stopHostelInfo?.nightly || 0,
         baggage,
         stopCount,
+        bonusCities,
       },
       state,
     ),
@@ -1679,6 +1730,13 @@ function stayCallFor(hostelNightly, hostelNights, perDay, state, practicalStay) 
 function routeTrust(trip, weatherInfo) {
   const flights = [...flightLegs(trip.outbound), ...flightLegs(trip.inbound)];
   const ground = [...groundTravelLegs(trip.outbound), ...groundTravelLegs(trip.inbound)];
+  if (trip.outbound?.groundHop || trip.inbound?.groundHop) {
+    return {
+      label: "Gateway route",
+      kind: "warn",
+      detail: "This uses a flight into a connected city plus bus/train into the destination. It can be clever and more fun, but check the ground timing carefully.",
+    };
+  }
   if (trip.plannedStop) {
     return {
       label: "Stopover check",
@@ -1997,6 +2055,7 @@ function renderCard(trip, index, state) {
   ];
   if (trip.inbound) chips.push([`${money(trip.perDay)}/day`, ""]);
   if (trip.plannedStop) chips.push([`${trip.stopCity} stop ${trip.stopLength}d`, "warn"]);
+  if (trip.bonusCities?.length) chips.push([`bonus city: ${trip.bonusCities.join(", ")}`, "good"]);
   if (trip.hostel) chips.push([`${trip.hostelNights} nights × ${money(trip.hostelNightly)}`, trip.hostelNightly <= state.hostelLimit ? "good" : "warn"]);
   if (trip.inbound && trip.stayCall) chips.push([trip.stayCall.label, trip.stayCall.kind]);
   if (trip.trust) chips.push([trip.trust.label, trip.trust.kind]);
@@ -2011,6 +2070,7 @@ function renderCard(trip, index, state) {
 
   const side = card.querySelector("dl");
   addStat(side, "Dates", tripDateLabel(trip));
+  if (trip.bonusCities?.length) addStat(side, "Gateway", trip.bonusCities.join(", "));
   if (trip.inbound) addStat(side, "Trip length", `${trip.length} ${trip.length === 1 ? "day" : "days"}`);
   if (trip.plannedStop) addStat(side, "Stop", `${trip.stopCity} · ${trip.stopLength} ${trip.stopLength === 1 ? "day" : "days"}`);
   if (trip.inbound) addStat(side, "Final stay", `${trip.finalLength} ${trip.finalLength === 1 ? "day" : "days"}`);
@@ -2392,6 +2452,9 @@ function verdict(trip, state) {
         trip.practicalStay.hours,
       )} of practical time in ${trip.destination}.`;
     }
+    if (trip.bonusCities?.length) {
+      return `${timing}: gateway route via ${trip.bonusCities.join(", ")}. It adds ground travel, but can make sense if you want one extra country/city on the way.`;
+    }
     if (trip.practicalStay?.hours < 28) {
       return `${timing}: calendar trip is short, but practically it is about ${formatHours(trip.practicalStay.hours)} in the city. Treat it like a sprint, not a full ${trip.length}-day stay.`;
     }
@@ -2408,6 +2471,9 @@ function verdict(trip, state) {
   }
   if (trip.risk <= 1 && trip.inbound) {
     return `Cleanest student option: simple flights both ways, total around ${money(trip.total)} before food and city transport.`;
+  }
+  if (trip.bonusCities?.length) {
+    return `Clever gateway option: fly to ${trip.bonusCities.join(", ")}, then bus/train into ${trip.destination}. More moving parts, but you can touch two places in one trip.`;
   }
   if (trip.stopCount > 0 && trip.worth >= 65) {
     return `Worth checking: saves money if the timings exist, but leave buffer because separate tickets can hurt.`;
@@ -2441,6 +2507,13 @@ function groundTravelLegs(route) {
 
 function routeHasFlights(route) {
   return flightLegs(route).length > 0;
+}
+
+function routeBonusCities(trip) {
+  return [
+    trip.outbound?.bonusCity,
+    trip.inbound?.bonusCity,
+  ].filter((cityName, index, citiesList) => cityName && citiesList.indexOf(cityName) === index);
 }
 
 function hostelStatText(trip) {
