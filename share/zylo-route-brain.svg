@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fbfdfb"/>
+      <stop offset=".56" stop-color="#f2faf5"/>
+      <stop offset="1" stop-color="#e0f3ec"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#183c2f" flood-opacity=".14"/>
+    </filter>
+    <style>
+      .serif { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; }
+      .sans { font-family: Inter, Arial, sans-serif; font-weight: 900; }
+      .ink { fill: #101916; }
+      .muted { fill: #66736d; }
+      .green { fill: #0c9b79; }
+    </style>
+  </defs>
+  <rect width="1080" height="1350" fill="url(#bg)"/>
+  <text x="72" y="110" class="green sans" font-size="32">ZYLO ROUTE BRAIN</text>
+  <text x="70" y="242" class="ink serif" font-size="102">It is not just</text>
+  <text x="70" y="344" class="ink serif" font-size="102">about finding</text>
+  <text x="70" y="446" class="ink serif" font-size="102">a cheap flight.</text>
+  <g filter="url(#shadow)" transform="translate(70 545)">
+    <rect width="940" height="520" rx="46" fill="#fff"/>
+    <rect x="42" y="42" width="856" height="130" rx="32" fill="#e2f6ed"/>
+    <text x="78" y="92" class="green sans" font-size="26">BUD → BCN · 29 Sept → 30 Sept</text>
+    <text x="78" y="145" class="ink sans" font-size="42">78/100 worth it</text>
+    <text x="700" y="144" class="green serif" font-size="74">€127</text>
+    <g transform="translate(42 220)">
+      <rect width="260" height="88" rx="26" fill="#f4f8f5"/>
+      <text x="28" y="38" class="muted sans" font-size="20">CITY TIME</text>
+      <text x="28" y="68" class="ink sans" font-size="26">32h · short real trip</text>
+    </g>
+    <g transform="translate(340 220)">
+      <rect width="260" height="88" rx="26" fill="#f4f8f5"/>
+      <text x="28" y="38" class="muted sans" font-size="20">HOSTEL</text>
+      <text x="28" y="68" class="ink sans" font-size="26">1 night × €33</text>
+    </g>
+    <g transform="translate(638 220)">
+      <rect width="260" height="88" rx="26" fill="#f4f8f5"/>
+      <text x="28" y="38" class="muted sans" font-size="20">WEATHER</text>
+      <text x="28" y="68" class="ink sans" font-size="26">86/100 season</text>
+    </g>
+    <g transform="translate(42 350)">
+      <rect width="856" height="104" rx="30" fill="#101916"/>
+      <text x="34" y="44" fill="#fff" class="sans" font-size="24">Why this route</text>
+      <text x="34" y="78" fill="#d7eee6" class="sans" font-size="23">Good price, usable timing, hostel does not destroy the deal.</text>
+    </g>
+  </g>
+  <text x="76" y="1158" class="muted sans" font-size="30">Tell me a city. Zylo will judge the whole trip.</text>
+  <rect x="76" y="1204" width="238" height="70" rx="35" fill="#0c9b79"/>
+  <text x="124" y="1249" fill="#fff" class="sans" font-size="26">Beta soon</text>
+</svg>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zylo - cheap trips worth taking</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css?v=42" />
+  </head>
+  <body class="landing-body">
+    <main class="landing-shell">
+      <header class="landing-nav">
+        <a class="brand landing-brand" href="./index.html" aria-label="Zylo home">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <span>
+            <strong>Zylo</strong>
+            <small>smart route finder</small>
+          </span>
+        </a>
+        <nav class="landing-links" aria-label="Landing navigation">
+          <a href="#brain">Brain</a>
+          <a href="#deals">Examples</a>
+          <a href="./app.html">Open app</a>
+        </nav>
+      </header>
+
+      <section class="landing-hero" aria-labelledby="landingTitle">
+        <div class="landing-copy">
+          <p class="eyebrow">Flights are cheap. Bad timing is not.</p>
+          <h1 id="landingTitle">Turn &euro;120 into a real Europe trip.</h1>
+          <p>
+            Zylo is a travel brain for students: it checks cheap flights, hostel cost, weather, route stress,
+            and real city time before calling a trip worth it.
+          </p>
+          <div class="landing-actions">
+            <a class="landing-cta" href="./app.html">Try the route map</a>
+            <span>Early beta, honest estimates.</span>
+          </div>
+        </div>
+
+        <div class="hero-product" aria-label="Zylo trip preview">
+          <div class="hero-search">
+            <div class="hero-tabs">
+              <span>Round trip</span>
+              <span>One way</span>
+            </div>
+            <div class="hero-fields">
+              <div>
+                <small>From</small>
+                <strong>Budapest</strong>
+              </div>
+              <div>
+                <small>To</small>
+                <strong>Anywhere cheap</strong>
+              </div>
+              <div>
+                <small>Free month</small>
+                <strong>October</strong>
+              </div>
+            </div>
+            <a href="./app.html">Find routes</a>
+          </div>
+
+          <div class="hero-map">
+            <span class="map-dot map-dot--bud"></span>
+            <span class="map-dot map-dot--bcn"></span>
+            <svg viewBox="0 0 520 300" aria-hidden="true">
+              <path d="M92 205 C190 130, 292 180, 430 76" />
+            </svg>
+            <div class="city-chip city-chip--bud">Budapest</div>
+            <div class="city-chip city-chip--bcn">Barcelona</div>
+            <div class="route-fare">
+              <small>BUD &rarr; BCN</small>
+              <strong>&euro;127</strong>
+              <span>32h city time</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="landing-strip" id="brain" aria-label="What Zylo checks">
+        <article>
+          <span>01</span>
+          <strong>Route score</strong>
+          <p>Cheap is not enough. Zylo scores whether the route is actually usable.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <strong>Stay logic</strong>
+          <p>It notices when 3 days costs almost the same as 2 days.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <strong>Direct links</strong>
+          <p>Airline, hostel, and weather checks stay close to the recommendation.</p>
+        </article>
+      </section>
+
+      <section class="landing-deals" id="deals" aria-label="Example recommendations">
+        <div>
+          <p class="eyebrow">Why this can feel different</p>
+          <h2>Flight engines show prices. Zylo explains the trip.</h2>
+        </div>
+        <div class="deal-grid">
+          <article class="deal-card deal-card--best">
+            <small>Best value</small>
+            <h3>Budapest &rarr; Barcelona</h3>
+            <strong>&euro;127</strong>
+            <p>2 days, 32h real city time, hostel okay, low stress.</p>
+          </article>
+          <article class="deal-card">
+            <small>Stay longer</small>
+            <h3>Budapest &rarr; Madrid</h3>
+            <strong>&euro;126</strong>
+            <p>3-day option wins because the return timing is better.</p>
+          </article>
+          <article class="deal-card">
+            <small>Skip it</small>
+            <h3>Cheap but bad timing</h3>
+            <strong>24h</strong>
+            <p>The ticket is cheap, but the city time is too short for a hostel night.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
