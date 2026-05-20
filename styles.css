@@ -993,7 +993,7 @@ button {
 }
 
 .leaflet-tile-pane {
-  filter: saturate(0.74) contrast(0.94) brightness(1.06);
+  filter: saturate(0.86) contrast(0.96) brightness(1.04);
 }
 
 .leaflet-marker-icon.city-pin-icon {
@@ -1514,6 +1514,29 @@ input[type="date"] {
   scrollbar-color: rgba(12, 155, 121, 0.34) transparent;
   scrollbar-width: thin;
   animation: select-menu-in 150ms ease both;
+}
+
+.select-search {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  width: 100%;
+  min-height: 42px;
+  margin-bottom: 5px;
+  padding: 0 13px;
+  border: 1px solid rgba(190, 224, 211, 0.86);
+  border-radius: 14px;
+  color: var(--ink);
+  background: rgba(248, 252, 249, 0.98);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 850;
+  outline: none;
+}
+
+.select-search:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(12, 155, 121, 0.12);
 }
 
 .select-menu:focus {
@@ -2170,19 +2193,49 @@ input[type="range"] {
 }
 
 .brain-note {
-  display: grid;
-  gap: 8px;
-  padding: 12px;
+  padding: 0;
   border: 1px solid rgba(17, 161, 125, 0.18);
   border-radius: 14px;
   background: rgba(224, 247, 239, 0.42);
+  overflow: hidden;
 }
 
-.brain-note > strong {
+.brain-note summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  padding: 0 12px;
   color: var(--green);
-  font-size: 0.75rem;
+  cursor: pointer;
+  font-size: 0.78rem;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.brain-note summary::after {
+  content: "+";
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(12, 155, 121, 0.1);
+  font-size: 1rem;
+}
+
+.brain-note[open] summary::after {
+  content: "-";
+}
+
+.brain-note summary::-webkit-details-marker {
+  display: none;
+}
+
+.brain-note-inner {
+  display: grid;
+  gap: 8px;
+  padding: 0 12px 12px;
 }
 
 .brain-scores {

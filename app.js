@@ -859,9 +859,9 @@ function enhanceSelects() {
     });
 
     menu.addEventListener("click", (event) => {
+      event.stopPropagation();
       const option = event.target.closest(".select-option");
       if (!option) return;
-      event.stopPropagation();
       chooseCustomSelectOption(select, option.dataset.value);
     });
 
@@ -880,6 +880,23 @@ function enhanceSelects() {
 function buildCustomSelectMenu(select) {
   const menu = customSelectMenu(select);
   menu.innerHTML = "";
+  if (isSearchableSelect(select)) {
+    const search = document.createElement("input");
+    search.className = "select-search";
+    search.type = "search";
+    search.placeholder = "Search city";
+    search.autocomplete = "off";
+    search.spellcheck = false;
+    search.setAttribute("aria-label", "Search cities");
+    search.addEventListener("input", () => {
+      select._searchState = { text: normalizeSelectSearch(search.value), time: Date.now() };
+      applyCustomSelectSearch(select, search.value);
+    });
+    menu.append(search);
+    select._customSearch = search;
+  } else {
+    select._customSearch = null;
+  }
   Array.from(select.options).forEach((option) => {
     const meta = selectOptionMeta(option);
     const row = document.createElement("button");
@@ -976,6 +993,9 @@ function openCustomSelect(select) {
   menu.hidden = false;
   shell.querySelector(".select-button").setAttribute("aria-expanded", "true");
   positionCustomSelectMenu(select);
+  if (isSearchableSelect(select)) {
+    requestAnimationFrame(() => select._customSearch?.focus({ preventScroll: true }));
+  }
 }
 
 function closeCustomSelect(select) {
@@ -1013,6 +1033,18 @@ function focusCustomOption(select, direction) {
 }
 
 function handleCustomSelectKeydown(event, select) {
+  if (event.target?.classList?.contains("select-search")) {
+    if (event.key === "Escape") {
+      closeCustomSelect(select);
+      select.closest(".select-shell").querySelector(".select-button").focus();
+    }
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      visibleCustomOptions(select)[0]?.focus();
+    }
+    return;
+  }
+
   if (isSelectSearchKey(event) && isSearchableSelect(select)) {
     event.preventDefault();
     handleCustomSelectSearch(event, select);
@@ -1065,7 +1097,9 @@ function applyCustomSelectSearch(select, query) {
 
   const visibleOptions = visibleCustomOptions(select);
   const nextFocus = visibleOptions.find((option) => option.dataset.value === select.value) || visibleOptions[0];
-  if (nextFocus) {
+  if (document.activeElement === select._customSearch) {
+    nextFocus?.scrollIntoView({ block: "nearest" });
+  } else if (nextFocus) {
     nextFocus.focus({ preventScroll: true });
     nextFocus.scrollIntoView({ block: "nearest" });
   } else {
@@ -1078,6 +1112,7 @@ function resetCustomSelectSearch(select) {
   select._searchState = { text: "", time: 0 };
   const menu = customSelectMenu(select);
   if (!menu) return;
+  if (select._customSearch) select._customSearch.value = "";
   menu.classList.remove("is-filtering");
   menu.querySelectorAll(".select-option").forEach((option) => {
     option.hidden = false;
@@ -1244,8 +1279,8 @@ function initRouteMap() {
     zoomControl: false,
   }).setView([48.8, 10.5], 4);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors",
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+    attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
     maxZoom: 9,
     minZoom: 3,
   }).addTo(routeMap);
@@ -2282,21 +2317,13 @@ function renderCard(trip, index, state) {
 
   const chips = [
     [tripDateLabel(trip), state.flexDates ? "good" : ""],
-    [formatHours(trip.hours), ""],
     ...(trip.inbound ? [[`${formatHours(trip.practicalStay.hours)} city time`, trip.practicalStay.kind]] : []),
     [`${trip.worth}/100 worth it`, trip.worth >= 72 ? "good" : ""],
     [weatherChipLabel(trip), trip.weather >= 76 ? "good" : "", trip.weatherKey],
     [`${riskLabel(trip.risk)} risk`, riskClass(trip.risk)],
   ];
-  if (trip.inbound) chips.push([`${money(trip.perDay)}/day`, ""]);
-  if (trip.plannedStop) chips.push([`${trip.stopCity} stop ${trip.stopLength}d`, "warn"]);
-  if (trip.bonusCities?.length) chips.push([`bonus city: ${trip.bonusCities.join(", ")}`, "good"]);
-  if (trip.hostel) chips.push([`${trip.hostelNights} nights × ${money(trip.hostelNightly)}`, trip.hostelNightly <= state.hostelLimit ? "good" : "warn"]);
-  if (trip.inbound && trip.stayCall) chips.push([trip.stayCall.label, trip.stayCall.kind]);
-  if (trip.trust) chips.push([trip.trust.label, trip.trust.kind]);
-  chips.push([state.backpackOnly ? "backpack fare" : `bag +${money(trip.baggage)}`, state.backpackOnly ? "good" : "warn"]);
-  if (state.airportSleep) chips.push(["rough stops ok", "warn"]);
-  if (trip.outbound.label !== "Direct") chips.push([trip.outbound.label, "warn"]);
+  if (trip.bonusCities?.length) chips.splice(2, 0, [`via ${trip.bonusCities.join(", ")}`, "good"]);
+  if (trip.plannedStop) chips.splice(2, 0, [`${trip.stopCity} stop`, "warn"]);
   card.querySelector(".chips").append(...chips.map(([text, kind, weatherKey]) => chip(text, kind, weatherKey)));
 
   const groups = card.querySelector(".leg-groups");
@@ -2306,21 +2333,13 @@ function renderCard(trip, index, state) {
   const side = card.querySelector("dl");
   addStat(side, "Dates", tripDateLabel(trip));
   if (trip.bonusCities?.length) addStat(side, "Gateway", trip.bonusCities.join(", "));
-  if (trip.inbound) addStat(side, "Trip length", `${trip.length} ${trip.length === 1 ? "day" : "days"}`);
   if (trip.plannedStop) addStat(side, "Stop", `${trip.stopCity} · ${trip.stopLength} ${trip.stopLength === 1 ? "day" : "days"}`);
-  if (trip.inbound) addStat(side, "Final stay", `${trip.finalLength} ${trip.finalLength === 1 ? "day" : "days"}`);
   if (trip.inbound) addStat(side, "City time", `${formatHours(trip.practicalStay.hours)} · ${trip.practicalStay.label}`);
-  addStat(side, "Trip score", `${trip.worth}/100`);
-  if (trip.inbound) addStat(side, "City score", `${trip.practicalStay.score}/100`);
   addStat(side, routeHasFlights(trip.outbound) ? "Fly out" : "Go out", routeTimeSummary(trip.outbound));
   if (trip.inbound) addStat(side, routeHasFlights(trip.inbound) ? "Fly back" : "Come back", routeTimeSummary(trip.inbound));
   addStat(side, "Outbound", money(trip.outboundCost));
   if (trip.inbound) addStat(side, "Return", money(trip.inboundCost));
-  if (trip.baggage) addStat(side, "Bag add-on", money(trip.baggage));
   if (trip.hostel) addStat(side, "Hostel", hostelStatText(trip));
-  if (trip.inbound && trip.stayCall) addStat(side, "Stay call", trip.stayCall.label);
-  if (trip.trust) addStat(side, "Trust", trip.trust.label);
-  addWeatherStat(side, trip);
   if (trip.inbound) addStat(side, "Per day", money(trip.perDay));
   addStat(side, "Total", money(trip.total));
 
@@ -2359,8 +2378,8 @@ function bookingActions(trip, state) {
 
 function renderBrainNote(container, trip, state) {
   container.innerHTML = "";
-  const title = document.createElement("strong");
-  title.textContent = "Brain check";
+  const summary = document.createElement("summary");
+  summary.textContent = "More about this score";
   const scores = document.createElement("div");
   scores.className = "brain-scores";
   brainScoreItems(trip, state).forEach((item) => {
@@ -2379,7 +2398,10 @@ function renderBrainNote(container, trip, state) {
     row.append(label, value);
     list.append(row);
   });
-  container.append(title, scores, list);
+  const inner = document.createElement("div");
+  inner.className = "brain-note-inner";
+  inner.append(scores, list);
+  container.append(summary, inner);
 }
 
 function brainInsights(trip, state) {
