@@ -1,0 +1,524 @@
+@media (max-width: 620px) {
+  .brain-scores {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-height: 720px) and (min-width: 981px) {
+  .landing-hero {
+    min-height: auto;
+    padding-top: 32px;
+  }
+
+  .landing-copy h1 {
+    font-size: clamp(4.4rem, 7vw, 7.4rem);
+  }
+
+  .hero-product {
+    min-height: 540px;
+  }
+
+  .intro-home {
+    min-height: calc(100svh - 62px);
+  }
+
+  .intro-copy {
+    padding-top: 22px;
+    padding-bottom: 22px;
+  }
+
+  .intro-copy h1 {
+    font-size: clamp(3.8rem, 8vw, 7.6rem);
+  }
+
+  .intro-copy p:not(.eyebrow) {
+    margin-top: 20px;
+  }
+
+  .intro-actions {
+    margin-top: 20px;
+  }
+
+  .intro-proof {
+    padding-bottom: 18px;
+  }
+
+  .topbar {
+    padding: 12px 20px;
+  }
+
+  .search-card {
+    margin-top: 18px;
+    padding: 18px;
+  }
+
+  .trip-toggle {
+    margin-bottom: 14px;
+  }
+
+  .trip-toggle span {
+    min-height: 38px;
+  }
+
+  .fields {
+    gap: 9px;
+  }
+
+  select,
+  input[type="date"],
+  .select-button {
+    height: 48px;
+  }
+
+  .search-button {
+    min-height: 48px;
+    margin-top: 12px;
+  }
+
+  .options summary {
+    min-height: 24px;
+  }
+}
+
+@media (max-width: 980px) {
+  .landing-shell {
+    width: min(760px, calc(100% - 24px));
+  }
+
+  .landing-links a:not(:last-child) {
+    display: none;
+  }
+
+  .landing-hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 42px 0 24px;
+  }
+
+  .landing-copy h1 {
+    font-size: clamp(4.4rem, 14vw, 8rem);
+  }
+
+  .hero-product {
+    min-height: 560px;
+  }
+
+  .landing-strip,
+  .landing-deals {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-deals {
+    padding-top: 70px;
+  }
+
+  .intro-home {
+    min-height: auto;
+  }
+
+  .intro-nav {
+    padding: 16px 18px;
+  }
+
+  .intro-copy {
+    width: min(720px, calc(100% - 36px));
+    margin: 0 auto;
+    padding: 44px 0 270px;
+  }
+
+  .intro-copy h1 {
+    font-size: clamp(4.1rem, 15vw, 8rem);
+  }
+
+  .intro-scene {
+    right: 50%;
+    bottom: 86px;
+    width: min(520px, 78vw);
+    transform: translateX(50%);
+  }
+
+  .intro-home::after {
+    right: 50%;
+    bottom: 76px;
+    width: min(600px, 84vw);
+    transform: translateX(50%) rotate(-4deg);
+  }
+
+  .intro-proof {
+    padding-inline: 16px;
+  }
+
+  .map-home {
+    height: calc(100svh - var(--page-pad-y-total));
+    min-height: min(620px, calc(100svh - var(--page-pad-y-total)));
+    padding-bottom: 0;
+  }
+
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .map-canvas {
+    position: absolute;
+    inset: 0;
+    height: auto;
+    margin: 0;
+  }
+
+  .city-insight {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .map-caption {
+    top: 18px;
+    right: 18px;
+    bottom: auto;
+  }
+
+  .search-card {
+    position: absolute;
+    top: var(--search-card-top);
+    left: var(--search-card-left);
+    width: min(380px, calc(100% - clamp(36px, 8vw, 92px)));
+    max-width: none;
+    max-height: calc(100% - var(--search-card-top) - clamp(16px, 3vh, 28px));
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .route-card {
+    grid-template-columns: 1fr;
+  }
+
+  .route-side {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .route-photo img {
+    height: 180px;
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-shell {
+    width: calc(100% - 16px);
+    padding-top: 8px;
+  }
+
+  .landing-nav {
+    gap: 10px;
+  }
+
+  .landing-links {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .landing-links a:last-child {
+    min-height: 40px;
+    padding: 0 13px;
+  }
+
+  .landing-brand {
+    padding: 8px 10px;
+  }
+
+  .landing-brand small {
+    display: none;
+  }
+
+  .landing-copy h1 {
+    font-size: clamp(3.9rem, 18vw, 5.8rem);
+    line-height: 0.82;
+  }
+
+  .landing-copy > p:not(.eyebrow) {
+    font-size: 0.98rem;
+  }
+
+  .landing-cta {
+    width: 100%;
+  }
+
+  .hero-product {
+    min-height: 620px;
+    border-radius: 24px;
+  }
+
+  .hero-search {
+    left: 14px;
+    top: 14px;
+    width: calc(100% - 28px);
+    padding: 14px;
+    border-radius: 24px;
+  }
+
+  .hero-map svg {
+    right: -36%;
+    bottom: 20%;
+    width: 122%;
+  }
+
+  .map-dot--bud {
+    right: 10%;
+    top: 47%;
+  }
+
+  .map-dot--bcn {
+    left: 13%;
+    bottom: 23%;
+  }
+
+  .city-chip--bud {
+    right: 4%;
+    top: 43%;
+  }
+
+  .city-chip--bcn {
+    left: 8%;
+    bottom: 18%;
+  }
+
+  .route-fare {
+    width: calc(100% - 28px);
+    right: 14px;
+    bottom: 14px;
+  }
+
+  .landing-strip article,
+  .deal-card {
+    border-radius: 22px;
+  }
+
+  .deal-card {
+    grid-template-columns: 1fr;
+  }
+
+  .deal-card strong {
+    grid-row: auto;
+    font-size: 3rem;
+  }
+
+  .page {
+    padding: 8px 8px 42px;
+  }
+
+  .intro-home {
+    border-radius: 22px;
+    background:
+      linear-gradient(180deg, rgba(246, 250, 246, 0.98), rgba(246, 250, 246, 0.82)),
+      url("https://images.unsplash.com/photo-1549877452-9c387954fbc2?auto=format&fit=crop&w=900&q=80") left bottom / 108vw auto no-repeat,
+      #f8fbf8;
+  }
+
+  .intro-nav {
+    padding: 14px;
+  }
+
+  .intro-nav-link {
+    min-height: 38px;
+    padding: 0 13px;
+    font-size: 0.78rem;
+  }
+
+  .intro-copy {
+    width: calc(100% - 28px);
+    padding: 28px 0 230px;
+  }
+
+  .intro-copy h1 {
+    font-size: clamp(3.75rem, 18vw, 5.7rem);
+    line-height: 0.82;
+  }
+
+  .intro-copy p:not(.eyebrow) {
+    font-size: 0.96rem;
+  }
+
+  .intro-button {
+    width: 100%;
+  }
+
+  .intro-scene {
+    bottom: 74px;
+    width: min(420px, 86vw);
+  }
+
+  .intro-ticket {
+    padding: 14px 16px;
+  }
+
+  .intro-proof {
+    justify-content: flex-start;
+    overflow: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 16px;
+  }
+
+  .intro-proof span {
+    flex: 0 0 auto;
+  }
+
+  .map-home {
+    border-radius: 22px;
+  }
+
+  .topbar {
+    padding: 14px;
+  }
+
+  .brand {
+    padding: 8px 10px;
+  }
+
+  .brand small {
+    display: none;
+  }
+
+  .map-canvas {
+    height: 330px;
+  }
+
+  .map-caption {
+    right: 14px;
+    top: 14px;
+    bottom: auto;
+  }
+
+  .city-insight {
+    width: 100%;
+    padding: 13px;
+    border-radius: 20px;
+  }
+
+  .city-insight p:not(.eyebrow) {
+    display: block;
+  }
+
+  .city-pin {
+    min-height: 24px;
+    padding: 0;
+    font-size: 0.82rem;
+  }
+
+  .city-pin span {
+    min-height: 28px;
+    padding: 0 9px;
+  }
+
+  .mini-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .stop-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .results-head,
+  .route-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 760px) {
+  .page {
+    padding: 0;
+  }
+
+  .map-home {
+    height: 100svh;
+    min-height: 100svh;
+    padding-bottom: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .topbar {
+    padding: 12px;
+  }
+
+  .map-canvas {
+    position: absolute;
+    inset: 0;
+    height: auto;
+    margin: 0;
+  }
+
+  .route-map::after {
+    background:
+      linear-gradient(180deg, rgba(247, 253, 250, 0.1), transparent 38%, rgba(247, 253, 250, 0.78)),
+      linear-gradient(90deg, rgba(247, 253, 250, 0.5), transparent 38%);
+  }
+
+  .map-key {
+    display: none;
+  }
+
+  .search-card {
+    position: absolute;
+    top: auto;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    width: auto;
+    max-height: 62svh;
+    margin: 0;
+    padding: 14px;
+    border-radius: 28px 28px 24px 24px;
+    overflow-y: auto;
+  }
+
+  .planner-copy h1 {
+    font-size: 1.1rem;
+  }
+
+  .planner-copy p:not(.eyebrow),
+  .city-insight,
+  .route-discovery {
+    display: none;
+  }
+
+  .results {
+    top: auto;
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    width: auto;
+    max-height: 70svh;
+    border-radius: 28px 28px 24px 24px;
+  }
+
+  .results .route-card {
+    grid-template-columns: 1fr;
+  }
+
+  .results .route-side dl {
+    grid-template-columns: 1fr;
+  }
+
+  .route-top h3 {
+    font-size: 1.45rem;
+  }
+
+  .route-price {
+    font-size: 2.2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}
+
