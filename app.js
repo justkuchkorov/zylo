@@ -379,12 +379,17 @@ const insightCity = document.querySelector("#insightCity");
 const insightMood = document.querySelector("#insightMood");
 const insightFact = document.querySelector("#insightFact");
 const insightTags = document.querySelector("#insightTags");
+const nearbyRoutePills = document.querySelector("#nearbyRoutePills");
+const popularRoutePills = document.querySelector("#popularRoutePills");
+const routeDiscovery = document.querySelector(".route-discovery");
+const cityByName = new Map(cities.map((item) => [item.name, item]));
 let routeMap;
 let fromMarker;
 let stopMarker;
 let toMarker;
 let routeLine;
 let routeLineShadow;
+let renderToken = 0;
 
 const cityCoordinates = {
   London: { lat: 51.5072, lon: -0.1276 },
@@ -774,22 +779,25 @@ function init() {
     syncTripType();
     syncStopover();
     updateMapPreview();
+    updateRouteDiscovery();
   });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     render();
   });
-  document.querySelectorAll("[data-preset]").forEach((button) => {
-    button.addEventListener("click", () => {
-      toCity.value = button.dataset.preset;
-      refreshCustomSelect(toCity);
-      updateMapPreview();
-      render();
-    });
+  routeDiscovery?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-preset]");
+    if (!button) return;
+    toCity.value = button.dataset.preset;
+    refreshCustomSelect(toCity);
+    updateMapPreview();
+    updateRouteDiscovery();
+    render();
   });
   syncTripType();
   syncStopover();
   updateMapPreview();
+  updateRouteDiscovery();
   window.addEventListener("resize", () => {
     routeMap?.invalidateSize();
     updateMapPreview();
@@ -1226,7 +1234,7 @@ function updateMapPreview() {
   const fromLatLng = cityLatLng(previewState.from);
   const toLatLng = cityLatLng(destination);
   const stopLatLng = plannedStop ? cityLatLng(plannedStop) : null;
-  const routeLatLngs = stopLatLng ? [fromLatLng, stopLatLng, toLatLng] : [fromLatLng, toLatLng];
+  const routeLatLngs = curvedRouteLatLngs(stopLatLng ? [fromLatLng, stopLatLng, toLatLng] : [fromLatLng, toLatLng]);
   const distance = routeDistanceKm(fromLatLng, toLatLng);
 
   fromMarker.setLatLng(fromLatLng).setIcon(cityPin(previewState.from, "from"));
@@ -1242,6 +1250,37 @@ function updateMapPreview() {
 
   const bounds = L.latLngBounds(routeLatLngs);
   routeMap.fitBounds(bounds.pad(0.08), mapFitOptions(distance));
+}
+
+function curvedRouteLatLngs(points) {
+  if (points.length < 2) return points;
+  return points.slice(0, -1).flatMap((point, index) => {
+    const segment = curvedSegment(point, points[index + 1], 28);
+    return index === 0 ? segment : segment.slice(1);
+  });
+}
+
+function curvedSegment(from, to, steps) {
+  const [fromLat, fromLon] = from;
+  const [toLat, toLon] = to;
+  const dx = toLon - fromLon;
+  const dy = toLat - fromLat;
+  const distance = Math.hypot(dx, dy) || 1;
+  const bend = Math.min(7, Math.max(1.2, distance * 0.16));
+  const direction = fromLon < toLon ? 1 : -1;
+  const control = [
+    (fromLat + toLat) / 2 + (-dx / distance) * bend * direction,
+    (fromLon + toLon) / 2 + (dy / distance) * bend * direction,
+  ];
+
+  return Array.from({ length: steps + 1 }, (_, step) => {
+    const t = step / steps;
+    const inv = 1 - t;
+    return [
+      inv * inv * fromLat + 2 * inv * t * control[0] + t * t * toLat,
+      inv * inv * fromLon + 2 * inv * t * control[1] + t * t * toLon,
+    ];
+  });
 }
 
 function updateCityInsight(cityName) {
@@ -1262,6 +1301,55 @@ function updateCityInsight(cityName) {
   insightTags.innerHTML = tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
 }
 
+function updateRouteDiscovery() {
+  const state = getState();
+  renderPresetButtons(nearbyRoutePills, nearbyDiscoveryCities(state.from, state.to));
+  renderPresetButtons(popularRoutePills, popularDiscoveryCities(state.from, state.to));
+}
+
+function nearbyDiscoveryCities(fromName, toName) {
+  const from = cityByName.get(fromName);
+  const directGround = from?.nearby?.map((item) => item.cityName) || [];
+  const intercityGround = intercityGraph.filter((leg) => leg.from === fromName).map((leg) => leg.to);
+  return uniqueNames([...directGround, ...intercityGround, ...nearestCities(fromName, 5)])
+    .filter((name) => name !== fromName && name !== toName && cityByName.has(name))
+    .slice(0, 4);
+}
+
+function popularDiscoveryCities(fromName, toName) {
+  return uniqueNames(["Barcelona", "Rome", "Paris", "Milan", "London", "Athens", "Anywhere"])
+    .filter((name) => name !== fromName && name !== toName)
+    .slice(0, 4);
+}
+
+function nearestCities(fromName, limit) {
+  const fromCoords = cityCoordinates[fromName];
+  if (!fromCoords) return [];
+  return cities
+    .filter((item) => item.name !== fromName && cityCoordinates[item.name])
+    .map((item) => ({
+      name: item.name,
+      distance: routeDistanceKm([fromCoords.lat, fromCoords.lon], cityLatLng(item.name)),
+    }))
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, limit)
+    .map((item) => item.name);
+}
+
+function renderPresetButtons(container, names) {
+  if (!container) return;
+  container.innerHTML = names
+    .map((name) => {
+      const label = name === "Anywhere" ? "Anywhere cheap" : name;
+      return `<button type="button" data-preset="${escapeHtml(name)}">${escapeHtml(label)}</button>`;
+    })
+    .join("");
+}
+
+function uniqueNames(names) {
+  return [...new Set(names.filter(Boolean))];
+}
+
 function initRouteMap() {
   if (!mapElement || !window.L) return;
 
@@ -1279,7 +1367,7 @@ function initRouteMap() {
     zoomControl: false,
   }).setView([48.8, 10.5], 4);
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
     attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
     maxZoom: 9,
     minZoom: 3,
@@ -1323,7 +1411,7 @@ function cityLatLng(cityName) {
 function cityPin(cityName, type) {
   return L.divIcon({
     className: "city-pin-icon",
-    html: `<div class="city-pin ${type}"><i></i><span>${cityLabelHtml(cityName)}</span></div>`,
+    html: `<div class="city-pin ${type}"><i></i><span>${cityLabelHtml(cityName)}<em>${cityCode(cityName)}</em></span></div>`,
     iconAnchor: [7, 14],
     iconSize: [190, 30],
   });
@@ -1380,9 +1468,33 @@ function radians(value) {
 
 function render() {
   const state = getState();
-  const built = buildRatedTrips(state);
+  const token = ++renderToken;
+  showResultsLoading(state);
 
+  window.setTimeout(() => {
+    if (token !== renderToken) return;
+    try {
+      renderBuiltTrips(state, buildRatedTrips(state));
+    } catch (error) {
+      console.error("Route render failed", error);
+      renderError(state);
+    }
+  }, 140);
+}
+
+function showResultsLoading(state) {
   results.hidden = false;
+  results.classList.add("is-loading");
+  resultsTitle.textContent =
+    state.to === "Anywhere"
+      ? `Scanning cheap cities from ${cityDisplayName(state.from)}`
+      : `Scanning ${cityDisplayName(state.to)}`;
+  resultCount.textContent = "Checking";
+  dataNote.textContent = "price + time + hostel";
+  cards.innerHTML = skeletonCards();
+}
+
+function renderBuiltTrips(state, built) {
   const titleStop = state.to === "Anywhere" ? "" : plannedStopName(state, state.to);
   resultsTitle.textContent = titleStop
     ? `${cityDisplayName(state.from)} to ${cityDisplayName(state.to)} via ${cityDisplayName(titleStop)}`
@@ -1397,6 +1509,7 @@ function render() {
     : state.flexDates
       ? "Best-value order · 30-day scan"
       : "Estimates + live checks";
+  results.classList.remove("is-loading");
   cards.innerHTML = "";
 
   if (!built.length) {
@@ -1405,8 +1518,31 @@ function render() {
     built.forEach((trip, index) => renderCard(trip, index, state));
     hydrateLiveWeather(built);
   }
+}
 
-  requestAnimationFrame(() => results.scrollIntoView({ behavior: "smooth", block: "start" }));
+function skeletonCards() {
+  return Array.from(
+    { length: 2 },
+    () => `<article class="route-card route-card--skeleton" aria-hidden="true"><div></div><div></div><div></div></article>`,
+  ).join("");
+}
+
+function renderError(state) {
+  results.classList.remove("is-loading");
+  results.hidden = false;
+  resultsTitle.textContent = "Route brain needs a refresh";
+  resultCount.textContent = "Error";
+  dataNote.textContent = "Try again";
+  cards.innerHTML = "";
+  const error = document.createElement("div");
+  error.className = "empty empty--error";
+  error.innerHTML = `
+    <h3>Could not build this search</h3>
+    <p>Zylo could not compare ${escapeHtml(cityDisplayName(state.from))} and ${escapeHtml(
+      cityDisplayName(state.to),
+    )} right now. Change one city or try again.</p>
+  `;
+  cards.append(error);
 }
 
 function getState() {
