@@ -339,6 +339,13 @@ input[type="date"] {
     transform 160ms ease;
 }
 
+.select-mobile-input,
+.select-mobile-flag,
+.select-mobile-badge,
+.select-mobile-caret {
+  display: none;
+}
+
 .select-button span {
   display: inline-flex;
   align-items: center;

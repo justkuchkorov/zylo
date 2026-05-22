@@ -14,11 +14,33 @@ function enhanceSelects() {
     const compact = ["tripLength", "stopLength"].includes(select.id);
     shell.className = "select-shell";
     if (compact) shell.classList.add("select-shell--compact");
+    if (isSearchableSelect(select)) shell.classList.add("select-shell--searchable");
     const button = document.createElement("button");
     button.className = "select-button";
     button.type = "button";
     button.setAttribute("aria-haspopup", "listbox");
     button.setAttribute("aria-expanded", "false");
+    const mobileInput = isSearchableSelect(select) ? document.createElement("input") : null;
+    const mobileFlag = isSearchableSelect(select) ? document.createElement("span") : null;
+    const mobileBadge = isSearchableSelect(select) ? document.createElement("span") : null;
+    const mobileCaret = isSearchableSelect(select) ? document.createElement("span") : null;
+    if (mobileInput) {
+      mobileInput.className = "select-mobile-input";
+      mobileInput.type = "search";
+      mobileInput.autocomplete = "off";
+      mobileInput.spellcheck = false;
+      mobileInput.setAttribute("aria-label", `${selectLabelText(select)} city`);
+      mobileInput.setAttribute("aria-haspopup", "listbox");
+      mobileInput.setAttribute("aria-expanded", "false");
+      mobileFlag.className = "select-mobile-flag";
+      mobileBadge.className = "select-mobile-badge";
+      mobileCaret.className = "select-mobile-caret";
+      mobileCaret.setAttribute("aria-hidden", "true");
+      select._mobileInput = mobileInput;
+      select._mobileFlag = mobileFlag;
+      select._mobileBadge = mobileBadge;
+      select._mobileCaret = mobileCaret;
+    }
     const menu = document.createElement("div");
     menu.className = compact ? "select-menu select-menu--compact" : "select-menu";
     menu.hidden = true;
@@ -28,6 +50,7 @@ function enhanceSelects() {
 
     select.before(shell);
     shell.append(select, button);
+    if (mobileInput) shell.append(mobileInput, mobileFlag, mobileBadge, mobileCaret);
     document.body.append(menu);
     buildCustomSelectMenu(select);
     syncCustomSelect(select);
@@ -60,6 +83,22 @@ function enhanceSelects() {
     });
 
     menu.addEventListener("keydown", (event) => handleCustomSelectKeydown(event, select));
+    if (mobileInput) {
+      mobileInput.addEventListener("click", (event) => {
+        event.stopPropagation();
+        openCustomSelect(select, { mobileInput: true });
+      });
+      mobileInput.addEventListener("focus", () => {
+        openCustomSelect(select, { mobileInput: true });
+        requestAnimationFrame(() => mobileInput.select());
+      });
+      mobileInput.addEventListener("input", () => {
+        openCustomSelect(select, { mobileInput: true, keepSearch: true });
+        select._searchState = { text: normalizeSelectSearch(mobileInput.value), time: Date.now() };
+        applyCustomSelectSearch(select, mobileInput.value);
+      });
+      mobileInput.addEventListener("keydown", (event) => handleMobileSelectInputKeydown(event, select));
+    }
     select.addEventListener("change", () => syncCustomSelect(select));
   });
 
@@ -128,6 +167,7 @@ function syncCustomSelect(select) {
     <small>${meta.badge}</small>
     <i aria-hidden="true"></i>
   `;
+  syncMobileSelectInput(select, selected, meta);
   menu.querySelectorAll(".select-option").forEach((option) => {
     const active = option.dataset.value === select.value;
     option.classList.toggle("is-selected", active);
@@ -178,16 +218,18 @@ function toggleCustomSelect(select) {
   }
 }
 
-function openCustomSelect(select) {
+function openCustomSelect(select, options = {}) {
   closeCustomSelects(select);
   const shell = select.closest(".select-shell");
   const menu = customSelectMenu(select);
-  resetCustomSelectSearch(select);
+  if (!options.keepSearch) resetCustomSelectSearch(select);
   shell.classList.add("is-open");
   menu.hidden = false;
+  menu.classList.toggle("is-mobile-proxy", Boolean(options.mobileInput));
   shell.querySelector(".select-button").setAttribute("aria-expanded", "true");
+  select._mobileInput?.setAttribute("aria-expanded", "true");
   positionCustomSelectMenu(select);
-  if (isSearchableSelect(select)) {
+  if (isSearchableSelect(select) && !options.mobileInput) {
     requestAnimationFrame(() => select._customSearch?.focus({ preventScroll: true }));
   }
 }
@@ -199,7 +241,10 @@ function closeCustomSelect(select) {
   shell.classList.remove("is-open");
   resetCustomSelectSearch(select);
   menu.hidden = true;
+  menu.classList.remove("is-mobile-proxy");
   shell.querySelector(".select-button").setAttribute("aria-expanded", "false");
+  select._mobileInput?.setAttribute("aria-expanded", "false");
+  syncMobileSelectInput(select, select.selectedOptions[0], selectOptionMeta(select.selectedOptions[0]));
 }
 
 function closeCustomSelects(exceptSelect) {
@@ -213,7 +258,8 @@ function chooseCustomSelectOption(select, value) {
   select.dispatchEvent(new Event("change", { bubbles: true }));
   requestAnimationFrame(() => routeMap?.invalidateSize());
   closeCustomSelect(select);
-  select.closest(".select-shell").querySelector(".select-button").focus();
+  const focusTarget = mobileSelectInputIsVisible(select) ? select._mobileInput : select.closest(".select-shell").querySelector(".select-button");
+  focusTarget?.focus({ preventScroll: true });
 }
 
 function focusCustomOption(select, direction) {
@@ -263,6 +309,30 @@ function handleCustomSelectKeydown(event, select) {
   }
 }
 
+function handleMobileSelectInputKeydown(event, select) {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeCustomSelect(select);
+    select._mobileInput?.blur();
+    return;
+  }
+
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    openCustomSelect(select, { mobileInput: true, keepSearch: true });
+    visibleCustomOptions(select)[0]?.focus({ preventScroll: true });
+    return;
+  }
+
+  if (event.key === "Enter") {
+    const options = visibleCustomOptions(select);
+    if (options.length === 1) {
+      event.preventDefault();
+      chooseCustomSelectOption(select, options[0].dataset.value);
+    }
+  }
+}
+
 function handleCustomSelectSearch(event, select) {
   const now = Date.now();
   const previous = select._searchState || { text: "", time: 0 };
@@ -291,7 +361,7 @@ function applyCustomSelectSearch(select, query) {
 
   const visibleOptions = visibleCustomOptions(select);
   const nextFocus = visibleOptions.find((option) => option.dataset.value === select.value) || visibleOptions[0];
-  if (document.activeElement === select._customSearch) {
+  if (document.activeElement === select._customSearch || document.activeElement === select._mobileInput) {
     nextFocus?.scrollIntoView({ block: "nearest" });
   } else if (nextFocus) {
     nextFocus.focus({ preventScroll: true });
@@ -340,6 +410,25 @@ function customSelectMenu(select) {
   return select._customMenu;
 }
 
+function selectLabelText(select) {
+  return select.closest("label")?.querySelector("span")?.textContent?.trim() || "Search";
+}
+
+function syncMobileSelectInput(select, selected, meta) {
+  if (!select?._mobileInput || !selected) return;
+  const cityItem = cities.find((item) => item.name === selected.value);
+  const isTyping = document.activeElement === select._mobileInput && select.closest(".select-shell")?.classList.contains("is-open");
+  if (!isTyping) select._mobileInput.value = selected.text;
+  select._mobileInput.placeholder = selected.text || "Search city";
+  select._mobileBadge.textContent = meta.badge || "";
+  select._mobileFlag.innerHTML = cityItem ? flagBadgeHtml(cityItem) : "";
+  select.closest(".select-shell")?.classList.toggle("has-mobile-flag", Boolean(cityItem));
+}
+
+function mobileSelectInputIsVisible(select) {
+  return Boolean(select?._mobileInput) && window.matchMedia("(max-width: 760px)").matches;
+}
+
 function positionOpenCustomSelects() {
   document.querySelectorAll(".select-native").forEach((select) => {
     if (select.closest(".select-shell")?.classList.contains("is-open")) {
@@ -350,7 +439,7 @@ function positionOpenCustomSelects() {
 
 function positionCustomSelectMenu(select) {
   const shell = select.closest(".select-shell");
-  const button = shell.querySelector(".select-button");
+  const button = mobileSelectInputIsVisible(select) ? select._mobileInput : shell.querySelector(".select-button");
   const menu = customSelectMenu(select);
   if (!button || !menu || menu.hidden) return;
 
